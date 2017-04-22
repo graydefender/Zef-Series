@@ -1,6 +1,6 @@
 1000 rem ******************************************************
 1020 rem * Gray Defender
-1040 rem * 04/07/2015
+1040 rem * 04/07/2015 
 1060 rem * Zefeldar .01 basic version (the precursor)
 1080 rem * This program will display information
 1100 rem * from a viewport section of a string array
