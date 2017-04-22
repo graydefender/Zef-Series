@@ -1,7 +1,7 @@
 # Zef-Series
 C64 Programming Tutorial Series
 
-This is where I will be saving my source code for this tutorial series.  
+This is where I will be saving my source code for this tutorial series.  These programs were written using the CBM Prg Studio by Arthur Jordison.
 
 Right now the source code consists of one basic program "zef.bas" and a few assembly language programs.
 
