@@ -39,24 +39,25 @@ Const_NOKEY         = $40
 ; This is done to avoid multiplication through looped addition-->performance
 ; If each map row was 20 wide then:
 ; 20, 40, 60, 80 etc... until bottom of mapped data
-Const_GMAP_L        byte                <GAMEMAP0,<GAMEMAP1,<GAMEMAP2,<GAMEMAP3,<GAMEMAP4,<GAMEMAP5,<GAMEMAP6,<GAMEMAP7,<GAMEMAP8,<GAMEMAP9
-Const_GMAP_H        byte                >GAMEMAP0,>GAMEMAP1,>GAMEMAP2,>GAMEMAP3,>GAMEMAP4,>GAMEMAP5,>GAMEMAP6,>GAMEMAP7,>GAMEMAP8,>GAMEMAP9
+Const_GMAP_L        byte                $00,$28,$50,$78,$a0,$c8,$f0,$18,$40,$68 
+Const_GMAP_H        byte                $20,$20,$20,$20,$20,$20,$20,$21,$21,$21
 Const_Screen_L      byte                $00,$28,$50,$78,$A0,$C8,$F0,$18,$40,$68,$90,$b8,$E0,$08,$30,$58,$80,$a8,$d0,$f8,$20,$48,$70,$98,$c0
 Const_Screen_H      byte                $04,$04,$04,$04,$04,$04,$04,$05,$05,$05,$05,$05,$05,$06,$06,$06,$06,$06,$06,$06,$07,$07,$07,$07,$07
 ;============================================================
 ;         *******   G A M E    M A P   *******
 ;============================================================
 
-GAMEMAP0             text                '-----gray defender--xxxxxxxxxxxxx xxxxxo'
-GAMEMAP1             text                '-------owooot ------xxxxxxxxxxxxx xxxxxo'
-GAMEMAP2             text                '-----o------oo------xxxxvvvvxxx      xxo'
-GAMEMAP3             text                '----o---------o-----xxxxxxvvvxxxxxxx xxo'
-GAMEMAP4             text                '---o-o---------oo---xxxxxxxxxxx      xxo'
-GAMEMAP5             text                '----o---HI-----o----aaabbbcccdd eeefffgo'
-GAMEMAP6             text                '-----o--------o-----01234g12345    1234o'
-GAMEMAP7             text                '------o------o------jjjjjjkkkkkll mmmmmo'
-GAMEMAP8             text                '-------o-oooo-------nnnnnnooooopp qqqqqo'
-GAMEMAP9             text                '--------------------rrrrrrssssstt uuuvvo'
+*=$2000
+GAMEMAP             text                '-----gray defender--xxxxxxxxxxxxx xxxxxo'
+                    text                '-------owooot ------xxxxxxxxxxxxx xxxxxo'
+                    text                '-----o------oo------xxxxvvvvxxx      xxo'
+                    text                '----o---------o-----xxxxxxvvvxxxxxxx xxo'
+                    text                '---o-o---------oo---xxxxxxxxxxx      xxo'
+                    text                '----o---HI-----o----aaabbbcccdd eeefffgo'
+                    text                '-----o--------o-----01234g12345    1234o'
+                    text                '------o------o------jjjjjjkkkkkll mmmmmo'
+                    text                '-------o-oooo-------nnnnnnooooopp qqqqqo'
+                    text                '--------------------rrrrrrssssstt uuuvvo'
 ;============================================================
 ;                  Program Macros
 ;============================================================
@@ -166,7 +167,7 @@ loop_vert           store_values_y      Const_Screen_L,output+1,Const_Screen_H,o
                     ldx                 #0                  
 loop_horiz          txa
                     Check_Wrap          vx,#Const_gmap_width                                         
-input               lda                 gamemap0,y                   
+input               lda                 gamemap,y                   
 output              sta                 $400,x
                     inx
 loop_cpx            cpx                 Const_SCN_View_WD     
