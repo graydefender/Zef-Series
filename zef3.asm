@@ -5,6 +5,9 @@
 ; Rewrote part of the program that displays data on the screen
 ; tried to make it more efficient
 ; Changed input routine to read kbd from $c5
+; 5/6/2017
+; Added shifting water effect with program interrupt and
+; redefined character set
 ;============================================================
 ;  Quick code to create auto execute program from basic
 ;============================================================
