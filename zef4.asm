@@ -8,6 +8,8 @@
 ; 5/6/2017
 ; Added shifting water effect with program interrupt and
 ; redefined character set
+; 5/18/17 
+; Added printed text output along with scrolling text window
 ;============================================================
 ;  Quick code to create auto execute program from basic
 ;============================================================
@@ -63,7 +65,33 @@ GAMEMAP9             text                '@@@@@@@@@@@@@@@@@@@@rrrrrrssssstt uuuv
 ;============================================================
 ;                  Program Macros
 ;============================================================
+defm                store_values                    ; This macro loads first
+                    lda                 /1,y        ; param then stores in
+                    sta                 /2          ; second param                    
+                    lda                 /3,y        ; the loads third and
+                    sta                 /4          ; stores in forth
+                    endm
 
+defm                shift_window
+                    lda                 /1                  
+                    sta                 WIN_X               
+                    lda                 /2                  
+                    sta                 WIN_Y               
+                    lda                 /3                  
+                    sta                 WD                  
+                    lda                 /4                  
+                    sta                 HT   
+                    jsr Scroll_Window_Up                                     
+endm
+
+defm                Print_Text
+                    
+                    lda                 #</1                
+                    sta                 main_string+1       
+                    lda                 #>/1                
+                    sta                 main_string+2                    
+                    jsr                 Display_Text                              
+endm   
 defm                store_values_y                    ; This macro loads first
                     lda                 /1,y          ; param then stores in
                     sta                 /2            ; second param                    
@@ -140,22 +168,38 @@ main_loop           jsr                 move_routine
                     cmp                 #Const_RIGHT        ; s key pressed? move right
                     beq                 move_right          ;
                     cmp                 #Const_DOWN         ; w key pressed? move up
-                    beq                 move_up             ;
+                    beq                 _move_up             ;
                     cmp                 #Const_UP           ; z key pressed? move up
                     bne                 main_loop           ;
 move_down           inc                 vy                  ; Move map down  vy=vy+1
                     Range_Test          vy,#Const_gmap_height,#1  ;Test vy for map_height reset to 0 if match
-                    jmp main_loop
+                    shift_window        #5,#15,#10,#5    
+                    Print_Text          str_south
+
+                    jmp                 main_loop           
+_move_up            jmp move_up                    
+quit_prg            rts
 move_left           dec                 vx                        ;Move map left  vx=vx-1
-                    Range_Test          vx,#$ff,#Const_gmap_width ;Test vx for -1 reset to width if match
+                    Range_Test          vx,#$ff,#Const_gmap_width;Test vx for -1 reset to width if match
+                    shift_window        #5,#15,#10,#5    
+                    Print_Text          str_west
+                    
                     jmp main_loop
 move_right          inc                 vx                        ;Move map right vx=vx+1
-                    Range_Test          vx,#Const_gmap_width,#1 
+                    Range_Test          vx,#Const_gmap_width,#1
+                    shift_window        #5,#15,#10,#5    
+                    Print_Text          str_east
+
                     jmp main_loop
 move_up             dec                 vy                        ;Move map up    vy=vy-1
                     Range_Test          vy,#$ff,#Const_gmap_height;Test vy for -1 reset to height if match
+
+                    shift_window        #5,#15,#10,#5    
+                    Print_Text          str_north
+                    
+ 
                     jmp main_loop
-quit_prg            rts
+
 
 ;============================================================
 ;                     MOVEMENT ROUTINE
@@ -191,6 +235,71 @@ delay               ldy #50
                     dey
                     bne @loop2
                     rts
+;==========================================================
+;                         Window SUBS 
+;==========================================================
+Scroll_Window_Up
+                    ldy                 WIN_Y
+                    iny
+                    clc
+                    lda                 WIN_X               
+                    adc                 WD                  
+                    sta                 MAX_WIDTH
+                    clc
+                    lda                 WIN_Y                                   
+                    adc                 HT                                      
+                    sta                 max_ht+1    
+loop_scr            ldx                 WIN_X
+                    store_values        Const_Screen_H,input_scr+2,Const_Screen_L,input_scr+1                    
+                    store_values        Const_Screen_H,lastline+2,Const_Screen_L,lastline+1                    
+                    dey
+                    store_values        Const_Screen_H,output_scr+2,Const_Screen_L,output_scr+1                    
+                    iny
+input_scr           lda $428,x
+output_scr          sta $400,x 
+                    lda #$20
+lastline            sta $428,x
+                    inx
+                    cpx                 MAX_WIDTH                  
+                    bne                 input_scr
+                    iny
+max_ht              cpy                 #10                  
+                    bne                 loop_scr               
+                    rts
+
+Display_Text                     
+                    lda                 #0                  
+                    sta                 string_pos                              
+Top_loop            clc                                 ; Set Cursor Position
+                    ldx                 max_ht+1        ; 
+                    dex                                 ;
+                    ldy                 WIN_X           ;                     
+                    jsr                 $e50a           ; X=Row, Y=Column
+                    ldx                 #0                  
+loop123             ldy                 string_pos                              
+main_string         lda                 $ffff,y
+                    beq                 @exit_loop          
+                    jsr                 $ffd2               
+                    inx
+                    inc                 string_pos
+                    cpx                 WD
+                    bne                 loop123 
+                    jsr                 Scroll_Window_Up    
+                    jmp                 Top_loop                    
+@exit_loop
+                    rts  
+str_north           null                ">NORTH"
+str_south           null                ">SOUTH"
+str_east            null                ">EAST"
+str_west            null                ">WEST"                    
+                    
+string_pos          byte                00
+WIN_X               byte                0
+WIN_Y               byte                0
+WD                  byte                40
+HT                  byte                25
+MAX_WIDTH           byte                00   ; Starting position plus width of window        
+                    
 ;==========================================================
 ;                         Redefine Character Set 
 ;==========================================================
