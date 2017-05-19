@@ -13,6 +13,6 @@ There is a separate file "shifting.asm" which produces the shifting effect and i
 
 "interrupt.asm" provides a quick example of one way to code a program interrupt on the Commodore 64.
 
-"Window.asm" and "window2.asm" demonstrate a window scrolling technique
+"Window.asm" demonstrates a window scrolling technique.  "window2.asm" adds in text output into the mix.
 
 In "zef4.asm" I integrate in the text printing program and text window scroll.
