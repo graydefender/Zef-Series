@@ -16,6 +16,7 @@ $RECYCLE.BIN/
 *.prg
 *.cbmprj
 *.dmp
+*.tmp
 
 # Windows shortcuts
 *.lnk
