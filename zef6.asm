@@ -589,11 +589,3 @@ value               byte                00
 water               BYTE $88,$77,$00,$00,$22,$dd,$00,$00                    
 player_ch           BYTE    $18,$BC,$BC,$BC,$98,$FE,$98,$A4
                     
-
-
-
-
-
-
-
-
