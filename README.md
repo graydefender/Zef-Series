@@ -20,3 +20,5 @@ In "zef4.asm" I integrate in the text printing program and text window scroll.
 In "zef5.asm" I added borders and colors to the project.
 
 In "zef6.asm" I added the player character, movement detection and "blocked" text.
+
+In "zef7.asm" I added a couple sound effects.  Associated files are "SOUND_Move.asm" and "SOUND_Blocked.asm"
