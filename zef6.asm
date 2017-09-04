@@ -12,6 +12,8 @@
 ; Added printed text output along with scrolling text window
 ; 6/14/17
 ; Added background border and colors into the project
+; 07/16/17
+; Added player character, block detection and print blocked text
 ;============================================================
 ;  Quick code to create auto execute program from basic
 ;============================================================

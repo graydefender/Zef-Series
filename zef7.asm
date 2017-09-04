@@ -12,6 +12,10 @@
 ; Added printed text output along with scrolling text window
 ; 6/14/17
 ; Added background border and colors into the project
+; 07/16/17
+; Added player character, block detection and print blocked text
+; 09/03/17
+; Added movment sound effect
 ;============================================================
 ;  Quick code to create auto execute program from basic
 ;============================================================
@@ -27,7 +31,9 @@ Const_SCREEN_WD                       = #40            ;text width of screen (c6
 Const_SCN_View_WD                     = #19            ;width  of view port (viewable on screen)
 Const_SCN_View_HT                     = #16            ;height of view port (viewable on screen)
 Const_gmap_width                      = 40             ;Width  of game map data
-Const_gmap_height                     = 16             ;Height of game map data
+Const_gmap_height   = 16                               ;Height of game map data
+SND                 = 54272                            ;
+SB                  = 54296                            ;                 
 vx                  byte                5             ;Starting x position into the game map data
 vy                  byte                5              ;Starting y position into the game map data
 ;============================================================
@@ -183,13 +189,14 @@ main_loop           jsr                 move_routine
                     sta                 $d94a                     
                     jsr delay
                     
+                    
 @nokey              lda                 Const_KBD_BUFFER    ; Input a key from the keyboard
                     cmp                 #Const_NOKEY        ; Nothing being pressed                    
                     beq                 @nokey              
                     cmp                 #Const_Qkey         ; q key pressed ?
                     beq                 quit_prg            
                     cmp                 #Const_LEFT         ; a key pressed? move left
-                    beq                 move_left           ;
+                    beq                 _move_left           ;
                     cmp                 #Const_RIGHT        ; s key pressed? move right
                     beq                 _move_right          ;
                     cmp                 #Const_DOWN         ; w key pressed? move up
@@ -199,56 +206,60 @@ main_loop           jsr                 move_routine
 move_down        
                     lda                 $572                ; Position directly below player
                     jsr                 Check_CAN_MOVE      
-                    beq                 @yes_can_move       
+                    beq                 _yes_can_move       
                     shift_window        #1,#18,#10,#6    
-                    Print_Text          str_blocked
+                    Print_Text          str_blocked                    
+                    jsr                 SOUND_Blocked
                     jmp                 main_loop 
- 
-@yes_can_move       inc                 vy                  ; Move map down  vy=vy+1
+quit_prg            rts 
+_yes_can_move       inc                 vy                  ; Move map down  vy=vy+1
                     Range_Test          vy,#Const_gmap_height,#1  ;Test vy for map_height reset to 0 if match
                     shift_window        #1,#18,#10,#6    
                     Print_Text          str_south
-
+                    jsr                 SOUND_Move          
                     jmp                 main_loop           
+_move_left          jmp move_left
 _move_up            jmp move_up
-_move_right         jmp move_right                    
-quit_prg            rts
+_move_right         jmp move_right 
+
 move_left           lda                 $549                    ; Position directly left of player
                     jsr                 Check_CAN_MOVE      
                     beq                 @yes_can_move       
                     shift_window        #1,#18,#10,#6                  
-                    Print_Text          str_blocked      
+                    Print_Text          str_blocked
+                    jsr                 SOUND_Blocked                    
                     jmp                 main_loop                                         
 @yes_can_move       dec                 vx                        ;Move map left  vx=vx-1
                     Range_Test          vx,#$ff,#Const_gmap_width;Test vx for -1 reset to width if match
                     shift_window        #1,#18,#10,#6    
                     Print_Text          str_west
-                    
+                    jsr                 SOUND_Move          
                     jmp main_loop
 move_right          lda                 $54b                    ; Position directly right of player
                     jsr                 Check_CAN_MOVE      
                     beq                 @yes_can_move       
                     shift_window        #1,#18,#10,#6                       
                     Print_Text          str_blocked 
+                    jsr                 SOUND_Blocked
                     jmp                 main_loop                     
 @yes_can_move       inc                 vx                        ;Move map right vx=vx+1
                     Range_Test          vx,#Const_gmap_width,#1
                     shift_window        #1,#18,#10,#6    
                     Print_Text          str_east
-
+                    jsr                 SOUND_Move          
                     jmp main_loop
 move_up             lda                 $522                   ; Position directly above player
                     jsr                 Check_CAN_MOVE      
                     beq                 @yes_can_move                      
                     shift_window        #1,#18,#10,#6                                           
                     Print_Text          str_blocked
+                    jsr                 SOUND_Blocked
                     jmp main_loop
 @yes_can_move       dec                 vy                        ;Move map up    vy=vy-1
                     Range_Test          vy,#$ff,#Const_gmap_height;Test vy for -1 reset to height if match
                     shift_window        #1,#18,#10,#6    
-                    Print_Text          str_north
-                    
- 
+                    Print_Text          str_north                    
+                    jsr                 SOUND_Move          
                     jmp main_loop
 
 
@@ -584,16 +595,170 @@ intcode             = *
 end                 jmp                 $ea31
 temp                byte                00
 value               byte                00
-
-
 water               BYTE $88,$77,$00,$00,$22,$dd,$00,$00                    
 player_ch           BYTE    $18,$BC,$BC,$BC,$98,$FE,$98,$A4
+
+
+SOUND_Move     
+@sound           
+
+@sound2         
+                    lda                 #15                 
+                    sta                 SND+24                                  
+
+                    lda                 #8                 
+                    sta                 SND+1               
+
+                    lda                 #15                 
+                    sta                 SND+5
+                    lda                 #%11110000                
+                    sta                 SND+6               
+                    lda                 #17                  
+                    sta                 SND+4  
+
+                    ldy #13
+                    ldx #10
+                    jsr @WAVE_DOWN
+                    ldy #10
+                    ldx #13
+                    jsr @WAVE_UP
+                    lda                 #0                  
+                    sta                 SND+1               
+                    rts
+@WAVE_UP     
+                    stx @SM_1+1
+@loopab             tya
+                    sta                 SND+1            
+                    pha
+                    jsr                 @delay              
+                    pla
+                    tay
+                    iny
+@SM_1               cpy                 #15
+                    bne                 @loopab             
+                    rts
+@WAVE_DOWN     
+                    stx @SM_2+1
+@loopabc            tya
+                    sta                 SND+1            
+                    pha
+                    jsr                 @delay              
+                    pla
+                    tay
+                    dey
+@SM_2               cpy                 #15
+                    bne                 @loopabc            
+                    rts
+
+@delay              ldx #4
+@lp2                ldy #0
+@lp                 dey
+                    bne                 @lp                 
+                    dex
+                    bne @lp2
+                    rts
                     
+@delay_more              ldx #100
+@lp2a                ldy #0
+@lpa                 dey
+                    bne                 @lpa                 
+                    dex
+                    bne @lp2a
+                    rts
+SND_BEG             = 9
+SND_END             = 12                    
 
+SOUND_Blocked     
+@sound           
 
+@sound2         
+                    lda                 #15                 
+                    sta                 SND+24                                  
 
+                    lda                 #8                 
+                    sta                 SND+1               
 
+                    lda                 #15                 
+                    sta                 SND+5
+                    lda                 #%11110000                
+                    sta                 SND+6               
+                    lda                 #17                  
+                    sta                 SND+4  
 
+                    ldy #SND_BEG
+                    ldx #SND_END
+                    jsr @WAVE_UP
+                    ldy #SND_BEG
+                    ldx #SND_END
+                    jsr @WAVE_UP
+                    ldy #SND_BEG
+                    ldx #SND_END
+                    jsr @WAVE_UP
+                    ldy #SND_BEG
+                    ldx #SND_END
+                    jsr                 @WAVE_UP            
+                    
+                    lda                 #0                  
+                    sta                 SND+1               
 
+                    ldx #50
+                    jsr                 @delay+2
+                    lda                 #8                 
+                    sta                 SND+1               
 
+                    ldy #SND_BEG
+                    ldx #SND_END
+                    jsr @WAVE_UP
+                    ldy #SND_BEG
+                    ldx #SND_END
+                    jsr @WAVE_UP
+                    ldy #SND_BEG
+                    ldx #SND_END
+                    jsr @WAVE_UP
+                    ldy #SND_BEG
+                    ldx #SND_END
+                    jsr @WAVE_UP
 
+                    lda                 #0                  
+                    sta                 SND+1               
+                    rts
+@WAVE_UP     
+                    stx @SM_1+1
+@loopab             tya
+                    sta                 SND+1            
+                    pha
+                    jsr                 @delay              
+                    pla
+                    tay
+                    iny
+@SM_1               cpy                 #15
+                    bne                 @loopab             
+                    rts
+@WAVE_DOWN     
+                    stx @SM_2+1
+@loopabc            tya
+                    sta                 SND+1            
+                    pha
+                    jsr                 @delay              
+                    pla
+                    tay
+                    dey
+@SM_2               cpy                 #15
+                    bne                 @loopabc            
+                    rts
+
+@delay              ldx #4
+@lp2                ldy #0
+@lp                 dey
+                    bne                 @lp                 
+                    dex
+                    bne @lp2
+                    rts
+                    
+@delay_more              ldx #100
+@lp2a                ldy #0
+@lpa                 dey
+                    bne                 @lpa                 
+                    dex
+                    bne @lp2a
+                    rts                    
