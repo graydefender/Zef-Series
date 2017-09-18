@@ -16,3 +16,7 @@ There is a separate file "shifting.asm" which produces the shifting effect and i
 "Window.asm" demonstrates a window scrolling technique.  "window2.asm" adds in text output into the mix.
 
 In "zef4.asm" I integrate in the text printing program and text window scroll.
+
+In "zef5.asm" I added borders and colors to the project.
+
+In "zef6.asm" I added the player character, movement detection and "blocked" text.
