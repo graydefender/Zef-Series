@@ -22,3 +22,9 @@ In "zef5.asm" I added borders and colors to the project.
 In "zef6.asm" I added the player character, movement detection and "blocked" text.
 
 In "zef7.asm" I added a couple sound effects.  Associated files are "SOUND_Move.asm" and "SOUND_Blocked.asm"
+
+In "zef8.asm" I optimized some code segments.
+
+In "zef9.asm" I added some code to load a new player map
+
+In "zef10.asm" I expand upon zef9.asm further fleshing out the code adding a new map and allowing entry from hash tag and asterisk characters.
