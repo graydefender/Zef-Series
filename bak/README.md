@@ -28,3 +28,5 @@ In "zef8.asm" I optimized some code segments.
 In "zef9.asm" I added some code to load a new player map
 
 In "zef10.asm" I expand upon zef9.asm further fleshing out the code adding a new map and allowing entry from hash tag and asterisk characters.
+
+In "Zef11.asm" I implemented loading maps from disk.  This is the final version for this project.
