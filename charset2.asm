@@ -40,9 +40,9 @@ loop                lda                 ($fb),y             ; read byte from vec
 ; ***********************************************************************************
 ;
         sei
-       ; lda #0
-       ; sta $d020
-       ; sta $d021
+        lda #0
+        sta $d020
+        sta $d021
         jsr initStarfield
                     jsr                 CreateStarScreen    ; Initialise Starfield
                     
